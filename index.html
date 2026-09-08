@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Космический рейс — математика, 6 класс</title>
+<style>
+:root{
+  --space:#1a0d3d;--deep:#120826;--violet:#7b4dff;--cyan:#35c8e8;--magenta:#f0466f;
+  --orange:#f79a4e;--star:#ffd75e;--ok:#4fd88f;--ink:#ece9ff;--dim:#a79ecf;
+}
+*{box-sizing:border-box}
+body{margin:0;background:
+    radial-gradient(120% 60% at 12% 0%,#3a2578 0%,transparent 55%),
+    radial-gradient(90% 50% at 95% 22%,#23306e 0%,transparent 60%),
+    radial-gradient(120% 60% at 50% 100%,#4a2a72 0%,transparent 55%),var(--space);
+  color:var(--ink);font-family:"Trebuchet MS","Segoe UI",-apple-system,Verdana,sans-serif;
+  font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased;min-height:100vh}
+body::before{content:"";position:fixed;inset:-5%;pointer-events:none;z-index:0;
+  animation:twA 4.6s ease-in-out infinite alternate, drift 120s linear infinite;
+  background-image:
+    radial-gradient(1.7px 1.7px at 12% 14%,#fff,transparent),
+    radial-gradient(1.4px 1.4px at 78% 9%,#fff,transparent),
+    radial-gradient(2px 2px at 34% 32%,var(--star),transparent),
+    radial-gradient(1.3px 1.3px at 62% 47%,#fff,transparent),
+    radial-gradient(1.6px 1.6px at 88% 63%,var(--cyan),transparent),
+    radial-gradient(1.4px 1.4px at 22% 71%,#fff,transparent),
+    radial-gradient(1.8px 1.8px at 47% 88%,var(--magenta),transparent),
+    radial-gradient(1.3px 1.3px at 8% 52%,#fff,transparent),
+    radial-gradient(1.5px 1.5px at 69% 78%,#fff,transparent),
+    radial-gradient(1.4px 1.4px at 93% 38%,#fff,transparent)}
+body::after{content:"";position:fixed;inset:-5%;pointer-events:none;z-index:0;
+  animation:twB 6.8s ease-in-out infinite alternate;
+  background-image:
+    radial-gradient(1.5px 1.5px at 27% 6%,#fff,transparent),
+    radial-gradient(2.1px 2.1px at 57% 18%,var(--star),transparent),
+    radial-gradient(1.3px 1.3px at 5% 33%,#fff,transparent),
+    radial-gradient(1.6px 1.6px at 41% 58%,#a9d8ff,transparent),
+    radial-gradient(1.4px 1.4px at 74% 55%,#fff,transparent),
+    radial-gradient(1.9px 1.9px at 15% 82%,var(--star),transparent),
+    radial-gradient(1.3px 1.3px at 86% 84%,#fff,transparent),
+    radial-gradient(1.5px 1.5px at 63% 95%,#ffb0d0,transparent),
+    radial-gradient(1.4px 1.4px at 36% 44%,#fff,transparent),
+    radial-gradient(1.7px 1.7px at 96% 20%,#fff,transparent)}
+@keyframes twA{from{opacity:.35}to{opacity:1}}
+@keyframes twB{from{opacity:1}to{opacity:.3}}
+@keyframes drift{to{transform:translateY(-40px)}}
+.comet{position:fixed;z-index:0;width:130px;height:2px;border-radius:2px;pointer-events:none;opacity:0;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.05) 30%,rgba(255,255,255,.95));
+  animation:comet 23s linear infinite}
+@keyframes comet{
+  0%{opacity:0;transform:translate(0,0) rotate(34deg) scaleX(.4)}
+  1.5%{opacity:1}
+  9%{opacity:0;transform:translate(105vw,72vh) rotate(34deg) scaleX(1)}
+  100%{opacity:0;transform:translate(105vw,72vh) rotate(34deg)}}
+.wrap{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:0 20px 70px}
+
+/* HUD */
+.hud{position:sticky;top:0;z-index:30;margin:0 -20px;padding:10px 20px;display:flex;align-items:center;
+  gap:12px;flex-wrap:wrap;background:rgba(18,8,38,.86);backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(255,255,255,.12)}
+.score{font-size:20px;font-weight:800;color:var(--star);white-space:nowrap}
+.score small{color:var(--dim);font-weight:400;font-size:13.5px}
+.rk{font-size:14.5px;color:var(--cyan);font-weight:700}
+.bar{flex:1;min-width:90px;height:9px;border-radius:99px;background:rgba(255,255,255,.13);overflow:hidden}
+.bar i{display:block;height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--orange),var(--star));transition:width .5s ease}
+.mini{background:none;border:1px solid rgba(255,255,255,.22);color:var(--dim);border-radius:9px;
+  padding:5px 11px;font-size:13px;cursor:pointer;font-family:inherit}
+.mini:hover{color:#fff;border-color:#fff}
+
+/* экраны */
+.screen{display:none}
+.screen.on{display:block;animation:in .45s ease both}
+@keyframes in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+h1{font-size:clamp(30px,6vw,46px);line-height:1.05;margin:26px 0 8px;font-weight:800;letter-spacing:-.02em;
+  text-shadow:0 6px 30px rgba(123,77,255,.55)}
+.lead{max-width:32em;color:#cfc7f5;margin:0 0 16px}
+.crew{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:16px 0 4px}
+.crew input{background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.22);border-radius:12px;
+  padding:9px 13px;color:#fff;font-family:inherit;font-size:16px;width:230px}
+.crew input:focus{outline:none;border-color:var(--cyan)}
+
+.mapActs{display:flex;justify-content:flex-end;padding-top:16px}
+.rh{font-size:17px;margin:22px 0 8px;color:var(--cyan);font-weight:700}
+table.rt{width:100%;border-collapse:collapse;font-size:15px}
+table.rt th{text-align:left;font-size:13px;color:var(--dim);font-weight:400;padding:6px 8px;
+  border-bottom:1px solid rgba(255,255,255,.2)}
+table.rt td{padding:9px 8px;border-bottom:1px solid rgba(255,255,255,.1);vertical-align:middle}
+table.rt th:not(:first-child),table.rt td:not(:first-child){text-align:center;width:70px}
+table.rt th:last-child,table.rt td:last-child{width:130px;text-align:right}
+.mk{display:inline-block;font-size:13px;border-radius:9px;padding:3px 9px;white-space:nowrap}
+.m-ok{background:rgba(79,216,143,.18);color:#8ff0bd;border:1px solid rgba(79,216,143,.45)}
+.m-mid{background:rgba(255,215,94,.15);color:var(--star);border:1px solid rgba(255,215,94,.4)}
+.m-low{background:rgba(240,70,111,.16);color:#ff9db4;border:1px solid rgba(240,70,111,.45)}
+@media (max-width:560px){
+  table.rt{font-size:13.5px}
+  table.rt td,table.rt th{padding:7px 4px}
+  table.rt th:not(:first-child),table.rt td:not(:first-child){width:46px}
+  table.rt th:last-child,table.rt td:last-child{width:96px}
+  .mk{font-size:11.5px;padding:2px 6px}
+}
+
+/* сообщения командира */
+.toasts{position:fixed;right:18px;bottom:18px;z-index:55;display:flex;flex-direction:column;gap:10px;
+  width:320px;max-width:calc(100vw - 28px);pointer-events:none}
+.toast{display:flex;gap:11px;align-items:flex-start;pointer-events:auto;cursor:pointer;
+  background:linear-gradient(155deg,rgba(58,37,120,.97),rgba(21,11,48,.97));
+  border:1px solid rgba(255,255,255,.18);border-radius:18px 18px 5px 18px;padding:12px 14px;
+  box-shadow:0 20px 44px -18px rgba(0,0,0,.9);animation:tIn .45s cubic-bezier(.2,.8,.3,1) both}
+.toast.out{animation:tOut .35s ease forwards}
+.toast .ava{width:34px;height:34px;border-radius:50%;flex:none;position:relative;
+  background:radial-gradient(circle at 34% 28%,#fff,#c9d6ff 45%,#6d7bd6);
+  box-shadow:inset -4px -5px 9px rgba(0,0,0,.35)}
+.toast .ava::after{content:"";position:absolute;left:22%;top:26%;width:56%;height:40%;border-radius:44%;
+  background:radial-gradient(circle at 30% 25%,#4a5a8f,#0c1030)}
+.toast .tx{font-size:14.5px;line-height:1.42}
+.toast .tx b{display:block;font-size:12.5px;color:var(--dim);font-weight:400;margin-bottom:2px}
+.toast.rankup{border-color:rgba(255,215,94,.6);background:linear-gradient(155deg,#5a3f12,#20112f)}
+.toast.rankup .tx{color:var(--star)}
+@keyframes tIn{from{opacity:0;transform:translateX(40px) scale(.94)}to{opacity:1;transform:none}}
+@keyframes tOut{to{opacity:0;transform:translateX(40px) scale(.95)}}
+
+/* брифинг */
+.veil{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:22px;
+  background:rgba(10,5,26,.78);backdrop-filter:blur(7px);animation:in .4s ease both}
+.veil.off{display:none}
+.brief{width:100%;max-width:440px;background:linear-gradient(160deg,#33206e,#160c33);
+  border:1px solid rgba(255,255,255,.18);border-radius:26px;padding:24px 22px 20px;
+  box-shadow:0 30px 70px -20px rgba(0,0,0,.9)}
+.brief .who{display:flex;align-items:center;gap:11px;margin-bottom:16px}
+.brief .ava{width:46px;height:46px;border-radius:50%;flex:none;position:relative;
+  background:radial-gradient(circle at 34% 28%,#fff,#c9d6ff 45%,#6d7bd6);
+  box-shadow:inset -5px -6px 12px rgba(0,0,0,.35)}
+.brief .ava::after{content:"";position:absolute;left:22%;top:26%;width:56%;height:40%;border-radius:44%;
+  background:radial-gradient(circle at 30% 25%,#4a5a8f,#0c1030)}
+.brief .who b{font-size:16px;display:block}
+.brief .who span{font-size:13px;color:var(--dim)}
+.msg{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.13);border-radius:16px 16px 16px 5px;
+  padding:11px 14px;margin-bottom:9px;font-size:16px;line-height:1.5;
+  animation:msgIn .45s cubic-bezier(.2,.8,.3,1) both}
+.msg:first-of-type{font-size:19px;font-weight:800;color:var(--star)}
+@keyframes msgIn{from{opacity:0;transform:translateY(12px) scale(.96)}to{opacity:1;transform:none}}
+.dots{display:flex;gap:5px;padding:13px 15px;width:60px;background:rgba(255,255,255,.07);
+  border-radius:16px 16px 16px 5px;margin-bottom:9px}
+.dots i{width:7px;height:7px;border-radius:50%;background:var(--dim);animation:blink 1.1s infinite}
+.dots i:nth-child(2){animation-delay:.18s}.dots i:nth-child(3){animation-delay:.36s}
+@keyframes blink{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+.brief .go{width:100%;margin-top:8px;animation:msgIn .5s ease both}
+
+/* карта */
+.map{position:relative;margin:28px 0 0;height:1180px}
+.map svg.path{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.node{position:absolute;transform:translate(-50%,-50%);text-align:center;width:150px}
+.pl{width:92px;height:92px;border-radius:50%;margin:0 auto;position:relative;cursor:pointer;border:0;padding:0;
+  background:radial-gradient(circle at 32% 26%,var(--c1),var(--c2) 58%,var(--c3));
+  box-shadow:0 16px 34px -12px rgba(0,0,0,.85), inset -10px -14px 26px rgba(0,0,0,.42);
+  animation:float 7s ease-in-out infinite;transition:transform .3s}
+.pl::before{content:"";position:absolute;inset:0;border-radius:50%;opacity:.35;
+  background:repeating-linear-gradient(-16deg,rgba(255,255,255,.35) 0 5px,transparent 5px 16px);
+  background-size:200% 100%;animation:surf 11s linear infinite;
+  -webkit-mask:radial-gradient(circle at 50% 50%,#000 68%,transparent 70%);
+  mask:radial-gradient(circle at 50% 50%,#000 68%,transparent 70%)}
+@keyframes surf{to{background-position:-200% 0}}
+.orb{position:absolute;inset:-24%;animation:orbit 13s linear infinite;pointer-events:none}
+.orb span{position:absolute;top:0;left:50%;width:13px;height:13px;border-radius:50%;transform:translate(-50%,-50%);
+  background:radial-gradient(circle at 33% 30%,#fff,#a9d8ff 55%,#3a5fbf);
+  box-shadow:0 0 9px rgba(169,216,255,.75)}
+@keyframes orbit{to{transform:rotate(360deg)}}
+#rocket .flame{transform-origin:27px 46px;animation:flame .3s ease-in-out infinite alternate}
+@keyframes flame{from{transform:scale(.86,.7);opacity:.7}to{transform:scale(1.05,1.15);opacity:1}}
+.pl::after{content:"";position:absolute;left:16%;top:12%;width:34%;height:24%;border-radius:50%;
+  background:rgba(255,255,255,.55);filter:blur(6px)}
+.pl:hover{transform:scale(1.07)}
+.ring{position:absolute;left:50%;top:50%;width:150%;height:44%;transform:translate(-50%,-50%) rotate(-22deg);
+  border-radius:50%;border:7px solid rgba(255,255,255,.42);box-shadow:0 0 14px rgba(255,255,255,.25);pointer-events:none}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+.node.locked .pl{filter:grayscale(.85) brightness(.42);cursor:not-allowed;animation:none}
+.node.locked .pl:hover{transform:none}
+.lock{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:26px}
+.node.done .pl{box-shadow:0 0 0 4px rgba(79,216,143,.5),0 16px 34px -12px rgba(0,0,0,.85)}
+.nm{font-size:14.5px;font-weight:700;margin-top:8px;line-height:1.25}
+.tp{font-size:12.5px;color:var(--dim);line-height:1.3}
+.pst{font-size:13px;color:var(--star);margin-top:3px}
+.node.just .pl{animation:unlock 1.1s ease}
+@keyframes unlock{0%{box-shadow:0 0 0 0 rgba(255,215,94,.75)}70%{box-shadow:0 0 0 26px rgba(255,215,94,0)}100%{box-shadow:0 0 0 0 rgba(255,215,94,0)}}
+#rocket{position:absolute;width:44px;height:44px;transform:translate(-50%,-50%);z-index:5;
+  transition:left 1.3s cubic-bezier(.5,0,.3,1),top 1.3s cubic-bezier(.5,0,.3,1);pointer-events:none;
+  filter:drop-shadow(0 6px 14px rgba(255,138,61,.6))}
+
+/* планета-урок */
+.pbar{display:flex;align-items:center;gap:14px;margin:22px 0 6px;flex-wrap:wrap}
+.pbig{width:64px;height:64px;border-radius:50%;flex:none;position:relative;
+  background:radial-gradient(circle at 32% 26%,var(--c1),var(--c2) 58%,var(--c3));
+  box-shadow:inset -8px -10px 20px rgba(0,0,0,.4);animation:float 7s ease-in-out infinite}
+h2{font-size:clamp(23px,4.4vw,32px);margin:0;font-weight:800;letter-spacing:-.01em}
+.sub{color:var(--dim);font-size:15px;margin:2px 0 0}
+
+.task{background:linear-gradient(160deg,rgba(48,32,102,.85),rgba(25,14,58,.9));
+  border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:14px 17px 15px;margin:13px 0;
+  transition:border-color .25s,box-shadow .25s}
+.task.done{border-color:rgba(79,216,143,.55);box-shadow:0 0 0 1px rgba(79,216,143,.22)}
+.task.given{border-color:rgba(255,255,255,.2);opacity:.85}
+.head{display:flex;align-items:flex-start;gap:11px}
+.num{flex:none;width:31px;height:31px;border-radius:11px;background:rgba(123,77,255,.28);
+  border:1px solid rgba(159,126,255,.5);display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:15px;color:#c9b6ff}
+.text{flex:1;padding-top:3px}
+.stars{flex:none;font-size:14px;color:var(--star);letter-spacing:1px;white-space:nowrap;padding-top:6px}
+.src{display:inline-block;font-size:12px;color:#8fe3f7;background:rgba(53,200,232,.12);
+  border:1px solid rgba(53,200,232,.3);border-radius:7px;padding:1px 7px;margin-left:5px;vertical-align:2px}
+.src.v{color:#ffc38f;background:rgba(247,154,78,.12);border-color:rgba(247,154,78,.3)}
+.src.d{color:#c9b6ff;background:rgba(123,77,255,.14);border-color:rgba(123,77,255,.35)}
+
+.sketch{margin:12px 0 0 42px}
+.tools{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:7px}
+.tools .lbl{display:flex;align-items:center;gap:5px;font-size:13px;color:var(--dim);margin-right:2px}
+.sw{width:24px;height:24px;border-radius:50%;border:2px solid rgba(255,255,255,.25);cursor:pointer;padding:0}
+.sw[aria-pressed="true"]{border-color:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.18)}
+.tool{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.2);color:var(--dim);
+  border-radius:9px;padding:4px 10px;font-size:13px;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:5px}
+.tool:hover{color:#fff}
+.tool[aria-pressed="true"]{background:rgba(255,215,94,.18);border-color:var(--star);color:var(--star)}
+.pad{position:relative;height:132px;min-height:70px;border:1px solid rgba(255,255,255,.18);
+  border-radius:12px 12px 4px 4px;overflow:hidden;touch-action:none;cursor:crosshair;
+  background-color:rgba(255,255,255,.05);
+  background-image:linear-gradient(rgba(255,255,255,.14) 1px,transparent 1px),
+                   linear-gradient(90deg,rgba(255,255,255,.14) 1px,transparent 1px);
+  background-size:22px 22px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.pad canvas{position:absolute;left:0;top:0;display:block}
+.grip{height:16px;border:1px solid rgba(255,255,255,.18);border-top:0;border-radius:0 0 12px 12px;
+  background:rgba(255,255,255,.06);cursor:ns-resize;display:flex;align-items:center;justify-content:center;touch-action:none}
+.grip::before{content:"";width:34px;height:3px;border-radius:9px;background:rgba(255,255,255,.35)}
+.check{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin:11px 0 0 42px}
+.check input{width:170px;background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.2);
+  border-radius:11px;padding:9px 12px;color:#fff;font-family:inherit;font-size:16px}
+.check input:focus{outline:none;border-color:var(--cyan);background:rgba(53,200,232,.1)}
+.btn{background:linear-gradient(135deg,var(--violet),#a06bff);border:0;color:#fff;font-family:inherit;
+  font-weight:700;font-size:15px;border-radius:11px;padding:10px 17px;cursor:pointer}
+.btn:hover{filter:brightness(1.12)}
+.btn.big{font-size:17px;padding:13px 24px;border-radius:14px}
+.btn.gold{background:linear-gradient(135deg,#ffb03a,var(--star));color:#3a2600}
+.btn.ghost{background:none;border:1px solid rgba(255,255,255,.22);color:var(--dim);font-weight:400;font-size:14px;padding:8px 12px}
+.btn.ghost:hover{color:#fff}
+.fb{font-size:15px;font-weight:700}
+.fb.ok{color:var(--ok)}.fb.no{color:#ff9db4}.fb.gray{color:var(--dim);font-weight:400}
+.pop{display:inline-block;animation:pop .45s ease}
+@keyframes pop{0%{transform:scale(.5) rotate(-12deg);opacity:0}60%{transform:scale(1.2)}100%{transform:scale(1)}}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:12px}
+.grid .task{margin:0;padding:12px 14px}
+.grid .sketch,.grid .check{margin-left:0}
+.grid .pad{height:88px}
+.grid .check input{width:105px}
+
+/* финиш планеты */
+.finish{margin-top:20px;background:linear-gradient(155deg,rgba(255,215,94,.16),rgba(25,14,58,.9));
+  border:1px solid rgba(255,215,94,.45);border-radius:22px;padding:22px;text-align:center;
+  animation:in .5s ease both}
+.finish h3{margin:0 0 4px;font-size:24px;color:var(--star)}
+.finish .got{font-size:34px;font-weight:800;color:var(--star);margin:6px 0}
+.burst{font-size:24px;letter-spacing:5px;animation:pop .6s ease}
+.bonus{background:linear-gradient(155deg,#4a2a1e,#2a1440);border:1px solid rgba(247,154,78,.45);
+  border-radius:20px;padding:16px 18px;margin-top:16px}
+.bonus h3{margin:0 0 4px;color:var(--orange);font-size:17px}
+
+/* отчёт */
+.report{background:linear-gradient(160deg,#2a1a5e,#150c33);border:1px solid rgba(255,255,255,.16);
+  border-radius:24px;padding:26px;margin-top:18px}
+.report h2{margin:0 0 4px}
+.rmeta{color:var(--dim);font-size:15px;margin:0 0 18px}
+.big{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:20px}
+.kpi{flex:1;min-width:140px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.13);
+  border-radius:16px;padding:14px 16px}
+.kpi b{display:block;font-size:29px;color:var(--star);font-weight:800;line-height:1.2}
+.kpi span{font-size:13.5px;color:var(--dim)}
+.rrow{margin:11px 0}
+.rrow .t{display:flex;justify-content:space-between;font-size:15px;gap:10px}
+.rrow .t i{font-style:normal;color:var(--dim);font-size:13.5px;white-space:nowrap}
+.track{height:10px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden;margin-top:5px}
+.track i{display:block;height:100%;border-radius:99px;transition:width .8s ease}
+.note{background:rgba(53,200,232,.1);border:1px solid rgba(53,200,232,.3);border-radius:16px;
+  padding:14px 16px;margin-top:18px;font-size:15.5px}
+.note b{color:var(--cyan)}
+.acts{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+textarea.share{width:100%;min-height:150px;margin-top:14px;background:rgba(0,0,0,.28);color:var(--ink);
+  border:1px solid rgba(255,255,255,.16);border-radius:14px;padding:12px;font-family:inherit;font-size:14.5px}
+footer{margin-top:40px;padding-top:16px;border-top:1px solid rgba(255,255,255,.1);color:var(--dim);font-size:13.5px;text-align:center}
+
+@media (max-width:620px){
+  .map{height:1080px}
+  .pl{width:70px;height:70px}
+  .node{width:120px}
+  .nm{font-size:13px}.tp{font-size:11.5px}
+  .sketch,.check{margin-left:0}
+  .check input{flex:1;width:auto;min-width:90px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media print{
+  body{background:#fff;color:#111}
+  body::before,.hud,#map,#play,.acts,textarea.share,.toasts,.veil{display:none!important}
+  .report{background:#fff!important;border:1px solid #999;color:#111}
+  .report h2,.kpi b{color:#111}
+  .kpi,.note{background:#fff!important;border:1px solid #bbb}
+  .track{background:#eee}.track i{background:#666!important}
+  .rrow .t i,.rmeta,.kpi span{color:#444}
+  .rh{color:#111}
+  table.rt th{color:#444;border-bottom:1px solid #999}
+  table.rt td{border-bottom:1px solid #ddd}
+  .mk{border:1px solid #999!important;color:#111!important;background:#fff!important}
+}
+</style>
+</head>
+<body>
+
+<div class="hud">
+  <div class="score" id="score">★ 0 <small>из 158</small></div>
+  <div class="bar"><i id="bar"></i></div>
+  <div class="rk" id="rank">стажёр</div>
+</div>
+
+<div class="wrap">
+
+<!-- КАРТА -->
+<section class="screen on" id="map">
+  <div class="mapActs"><button class="mini" id="toEarth">Вернуться на Землю · отчёт о полёте</button></div>
+  <div class="map" id="mapBox"></div>
+</section>
+
+<!-- ПЛАНЕТА -->
+<section class="screen" id="play">
+  <div class="pbar">
+    <div class="pbig" id="pIcon"></div>
+    <div><h2 id="pName"></h2><p class="sub" id="pSub"></p></div>
+    <button class="mini" data-go="map" style="margin-left:auto">← К карте</button>
+  </div>
+  <div id="pTasks"></div>
+  <div id="pFinish"></div>
+</section>
+
+<!-- ЗЕМЛЯ / ОТЧЁТ -->
+<section class="screen" id="earth"></section>
+
+<div class="comet" style="left:-14%;top:4%;animation-delay:3s"></div>
+<div class="comet" style="left:-16%;top:-8%;animation-delay:12s"></div>
+<div class="comet" style="left:-12%;top:22%;animation-delay:19s"></div>
+
+<div class="toasts" id="toasts"></div>
+
+<div class="veil" id="veil">
+  <div class="brief">
+    <div class="who"><div class="ava"></div><div><b>Командир корабля</b><span>канал связи открыт</span></div></div>
+    <div id="msgs"></div>
+  </div>
+</div>
+
+<footer>Рабочий лист по математике · 6 класс, профильная группа · задания в стиле МЦКО, ВПР и школьных дидактических материалов</footer>
+</div>
+
+<script>
+const P='<span class="src">МЦКО</span>',V='<span class="src v">ВПР</span>',D='<span class="src d">дидактика</span>';
+const COLORS=['#f4f1ff','#ffd75e','#57e0ff','#ff8fb0','#7ef2b0'];
+const RANKS=[[150,'командир корабля'],[130,'пилот'],[100,'бортинженер'],[60,'кадет'],[0,'стажёр']];
+
+const PLANETS=[
+{name:'Аврора',topic:'Разминка: устный счёт',c:['#ffd08a','#f79a4e','#c4571f'],grid:true,x:18,y:94,tasks:[
+  {q:'−7 + 12',s:1,a:'5'},{q:'−8 − 5',s:1,a:'-13'},{q:'−6 · (−4)',s:1,a:'24'},{q:'−36 : 9',s:1,a:'-4'},
+  {q:'(−1)<sup>101</sup>',s:1,a:'-1'},{q:'|−15| + |−5|',s:1,a:'20'},{q:'−2,5 · 4',s:1,a:'-10'},
+  {q:'0 − (−3,7)',s:1,a:'3.7'},{q:'10% от 250',s:1,a:'25'},{q:'Наименьшее из −0,3; −0,03; −0,003',s:1,a:'-0.3'}]},
+{name:'Минус',topic:'Положительные и отрицательные числа',c:['#8fd8ff','#3d7ff0','#1b3aa0'],x:52,y:83,tasks:[
+  {q:'Вычислите: −2,4 + 6,1 − 5,3',s:1,a:'-1.6'},
+  {q:'Вычислите: −2/3 + 5/6',s:1,a:'1/6'},
+  {q:'Найдите значение выражения: (−2)³ + (−3)²',s:2,a:'1'},
+  {q:'Вычислите: −0,25 · (−8) · (−5)',s:2,a:'-10'},
+  {q:'Найдите значение выражения: (−1,2 − 3,8) : (−0,5)'+P,s:2,a:'10'},
+  {q:'Утром температура была −8 °C, к полудню поднялась на 12 °C, а ночью упала на 7 °C. Какой стала температура ночью?'+V,s:2,a:'-3'},
+  {q:'Расположите в порядке возрастания через точку с запятой: −2,5; |−3|; −(−1,4); −3,1'+D,s:3,a:'@-3.1;-2.5;1.4;3'},
+  {q:'Найдите значение выражения −a + b при a = −3,5 и b = −1,2',s:3,a:'2.3'}]},
+{name:'Процентия',topic:'Проценты: часть и целое',c:['#ff9ec4','#e0245c','#8e1038'],x:82,y:72,tasks:[
+  {q:'Найдите 24% от 350.',s:1,a:'84'},
+  {q:'Число 45 составляет 15% некоторого числа. Найдите это число.',s:1,a:'300'},
+  {q:'Найдите 3/7 от 56, затем найдите число, 5/8 которого равны 45. Запишите оба ответа.'+D,s:2,a:'#24;72'},
+  {q:'В классе 25 учеников, 40% из них — девочки. Сколько в классе мальчиков?'+V,s:2,a:'15'},
+  {q:'В воздухе примерно 21% кислорода. Сколько литров кислорода в баллоне объёмом 300 л?'+V,s:2,a:'63'},
+  {q:'Турист прошёл 2/5 маршрута, это 18 км. Какова длина всего маршрута?',s:2,a:'45'},
+  {q:'Товар стоил 1200 р. Цену снизили на 15%, затем повысили на 20%. Сколько стоит товар теперь?'+P,s:3,a:'1224'},
+  {q:'Число увеличили на 25%, а результат уменьшили на 20%. Изменилось ли исходное число? Ответьте «да» или «нет».'+P,s:3,a:'нет|неизменилось'},
+  {q:'В библиотеке 800 книг: учебники — 35%, справочники — 15%, остальное — художественная литература. Сколько книг художественной литературы?'+V,s:3,a:'400'},
+  {q:'Ракета израсходовала 65% топлива, в баках осталось 210 л. Сколько топлива было при старте?',s:3,a:'600'}]},
+{name:'Пропорциум',topic:'Пропорции',c:['#c8b0ff','#7b4dff','#3c1f9e'],ring:true,x:52,y:60,tasks:[
+  {q:'Решите пропорцию: x : 12 = 15 : 9',s:1,a:'20'},
+  {q:'Решите пропорцию: 3,5 : x = 7 : 8',s:1,a:'4'},
+  {q:'Решите пропорцию: (x − 1) : 4 = 9 : 6'+D,s:2,a:'7'},
+  {q:'За 6 часов зонд пролетел 4200 км. Какое расстояние он пролетит за 11 часов с той же скоростью?'+V,s:2,a:'7700'},
+  {q:'Масштаб карты 1 : 2 500 000, расстояние на карте 8 см. Найдите расстояние на местности в километрах.'+P,s:3,a:'200'},
+  {q:'Разделите 240 в отношении 3 : 5. Запишите обе части.',s:2,a:'#90;150'},
+  {q:'Для 9 одинаковых баков нужно 63 л жидкости. Сколько литров нужно для 14 таких баков?',s:2,a:'98'},
+  {q:'Автомобиль доезжает до базы за 4 ч со скоростью 60 км/ч. С какой скоростью надо ехать, чтобы доехать за 3 ч?'+V,s:3,a:'80'}]},
+{name:'Коэффикс',topic:'Коэффициент и упрощение выражений',c:['#9dffd2','#2fc98a','#0d6a49'],x:18,y:48,tasks:[
+  {q:'Упростите: −0,8a · 5b. Запишите результат.',s:1,a:'-4ab|-4ba'},
+  {q:'Упростите: 3x − 7x + 12x',s:1,a:'8x'},
+  {q:'Упростите: −1,5x · (−4y) · 2',s:2,a:'12xy|12yx'},
+  {q:'Раскройте скобки: −(3m − 5n + 1)',s:2,a:'-3m+5n-1|5n-3m-1'},
+  {q:'Упростите: 4(x + 2) − 3(x − 1)'+D,s:2,a:'x+11|11+x'},
+  {q:'Найдите значение выражения 7,3m − 2,3m при m = −4'+P,s:2,a:'-20'},
+  {q:'Упростите: 6(2x − 1) − 4(3x − 2,5)'+P,s:3,a:'4'},
+  {q:'Найдите значение 2(3a − 1) − 3(2a − 5) при a = 1,7 и при a = −11. Запишите ответ.'+D,s:3,a:'13'}]},
+{name:'Эквилибра',topic:'Уравнения',c:['#ffe9a8','#ffd75e','#c99413'],x:52,y:37,tasks:[
+  {q:'Решите уравнение: 5x − 12 = 3x + 8',s:1,a:'10'},
+  {q:'Решите уравнение: −4(x − 3) = 2x + 6',s:2,a:'1'},
+  {q:'Решите уравнение: 0,4(2x − 1) = 0,2x + 1,4'+P,s:2,a:'3'},
+  {q:'Решите уравнение: 7x − (3x − 8) = 24'+D,s:2,a:'4'},
+  {q:'Решите уравнение: |x − 2| = 5. Запишите оба корня.'+D,s:3,a:'#7;-3'},
+  {q:'В двух отсеках 168 контейнеров, во втором в 3 раза больше, чем в первом. Сколько контейнеров в каждом отсеке?'+V,s:3,a:'#42;126'},
+  {q:'Задумали число, умножили на 4, вычли 7 и получили 45. Какое число задумали?'+V,s:2,a:'13'},
+  {q:'Периметр прямоугольника 46 см, длина на 5 см больше ширины. Найдите стороны.'+P,s:3,a:'#9;14'}]},
+{name:'Сплавус',topic:'Сплавы, растворы, концентрация',c:['#ffb8f0','#b06bff','#4b1d8f'],ring:true,x:82,y:26,tasks:[
+  {q:'Сплав массой 400 г содержит 15% меди. Сколько граммов меди в сплаве?'+V,s:1,a:'60'},
+  {q:'В сплаве меди и цинка массой 240 г содержится 90 г меди. Каков процент меди в сплаве?'+V,s:2,a:'37.5'},
+  {q:'К 300 г раствора с концентрацией соли 12% долили 100 г воды. Найдите новую концентрацию в процентах.'+P,s:2,a:'9'},
+  {q:'Сколько граммов воды нужно выпарить из 500 г шестипроцентного раствора, чтобы получить десятипроцентный?'+P,s:3,a:'200'},
+  {q:'Сплавили 150 г сплава с 30% олова и 250 г сплава с 14% олова. Найдите процент олова в новом сплаве.'+D,s:3,a:'20'},
+  {q:'Сколько граммов соли надо добавить к 250 г восьмипроцентного раствора, чтобы концентрация стала 20%?'+D,s:3,a:'37.5'},
+  {q:'Свежие фрукты содержат 80% воды, а высушенные — 20%. Сколько килограммов сушёных фруктов получится из 40 кг свежих?'+P,s:4,a:'10'},
+  {q:'Есть два раствора кислоты: 10% и 30%. Сколько граммов каждого надо взять, чтобы получить 400 г 25-процентного раствора?'+D,s:4,a:'#100;300'}],
+ bonus:{s:5,q:'Секретная миссия. К сплаву массой 300 г, содержащему 20% никеля, добавили 100 г чистого никеля. Какой стала концентрация никеля в процентах?',a:'40'}},
+{name:'Орбита X',topic:'Самостоятельная работа',c:['#c9d6ff','#6d7bd6','#2a2f6b'],x:52,y:15,tasks:[
+  {q:'Найдите значение выражения: −3,2 + (−1,8) : 0,6',s:2,a:'-6.2'},
+  {q:'Найдите число, 40% которого равны 72.',s:2,a:'180'},
+  {q:'Решите пропорцию: 15 : x = 25 : 8',s:2,a:'4.8'},
+  {q:'Упростите выражение: 6(2x − 1) − 4(3x − 2,5)',s:3,a:'4'},
+  {q:'Решите уравнение: 7x − (3x − 8) = 24',s:3,a:'4'},
+  {q:'Сплавили 150 г сплава с 30% меди и 250 г сплава с 14% меди. Найдите концентрацию меди в новом сплаве (в процентах).',s:4,a:'20'}]}
+];
+const EARTH={x:18,y:6};
+const HW=[
+  {q:'Вычислите: −5,6 : (−0,7) − 8',s:1,a:'0'},
+  {q:'Цена 2500 р. снизилась на 12%, а затем ещё на 25%. Какой стала цена?',s:2,a:'1650'},
+  {q:'Решите пропорцию: 2,4 : 0,8 = 9 : x',s:2,a:'3'},
+  {q:'Упростите 3(2a − 4) − 2(a − 6) и найдите значение при a = −0,5.',s:2,a:'-2'},
+  {q:'Решите уравнение: (2x − 3) : 5 = (x + 1) : 2',s:3,a:'-11'},
+  {q:'Сколько граммов воды надо добавить к 400 г 15-процентного раствора, чтобы он стал 10-процентным?',s:3,a:'200'},
+  {q:'Свежие грибы содержат 90% воды, сушёные — 12%. Сколько сушёных грибов получится из 22 кг свежих?',s:4,a:'2.5'}];
+
+/* ── состояние ─────────────────────────── */
+const state={};let uid=0,unlocked=1,openIdx=null,startTs=null;
+function pMax(p){return p.tasks.reduce((a,t)=>a+t.s,0)+(p.bonus?p.bonus.s:0);}
+const TOTAL_MAX=PLANETS.reduce((a,p)=>a+pMax(p),0)+HW.reduce((a,t)=>a+t.s,0);
+
+/* ── клетчатое поле ────────────────────── */
+function padTools(){
+  return '<div class="tools"><span class="lbl"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffd75e" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>карандаш</span>'
+    +COLORS.map((c,i)=>'<button class="sw" style="background:'+c+'" data-color="'+c+'" aria-pressed="'+(i===0)+'" title="Цвет"></button>').join('')
+    +'<button class="tool eraser" aria-pressed="false">ластик</button>'
+    +'<button class="tool clear">очистить</button></div>';
+}
+function sketchHTML(h){return '<div class="sketch" data-color="'+COLORS[0]+'" data-erase="0">'+padTools()
+  +'<div class="pad"'+(h?' style="height:'+h+'px"':'')+'></div><div class="grip"></div></div>';}
+const DPR=Math.min(2,window.devicePixelRatio||1);
+const RO=window.ResizeObserver?new ResizeObserver(es=>es.forEach(e=>sizePad(e.target))):null;
+function initPad(pad){if(pad._ready||!pad.clientWidth)return;
+  const c=document.createElement('canvas');pad.appendChild(c);pad._canvas=c;pad._ready=true;
+  sizePad(pad);if(RO)RO.observe(pad);}
+function sizePad(pad){const c=pad._canvas;if(!c)return;
+  const w=Math.max(1,Math.round(pad.clientWidth)),h=Math.max(1,Math.round(pad.clientHeight));
+  if(c.width===Math.round(w*DPR)&&c.height===Math.round(h*DPR))return;
+  let snap=null;
+  if(c.width&&c.height){snap=document.createElement('canvas');snap.width=c.width;snap.height=c.height;
+    snap.getContext('2d').drawImage(c,0,0);}
+  c.width=Math.round(w*DPR);c.height=Math.round(h*DPR);c.style.width=w+'px';c.style.height=h+'px';
+  const ctx=c.getContext('2d');ctx.lineCap='round';ctx.lineJoin='round';
+  if(snap)ctx.drawImage(snap,0,0);
+  ctx.setTransform(DPR,0,0,DPR,0,0);}
+let stroke=null,resz=null;
+document.addEventListener('pointerdown',e=>{
+  const pad=e.target.closest('.pad');
+  if(pad){initPad(pad);if(!pad._canvas)return;
+    const box=pad.closest('.sketch'),ctx=pad._canvas.getContext('2d'),r=pad.getBoundingClientRect();
+    const er=box.dataset.erase==='1';
+    ctx.globalCompositeOperation=er?'destination-out':'source-over';
+    ctx.strokeStyle=er?'#000':box.dataset.color;ctx.lineWidth=er?18:2.4;
+    const x=e.clientX-r.left,y=e.clientY-r.top;
+    ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x+.1,y);ctx.stroke();
+    stroke={ctx,r};try{pad.setPointerCapture(e.pointerId)}catch(_){}e.preventDefault();}
+  const g=e.target.closest('.grip');
+  if(g){const p=g.parentElement.querySelector('.pad');initPad(p);
+    resz={pad:p,y:e.clientY,h:p.clientHeight};try{g.setPointerCapture(e.pointerId)}catch(_){}e.preventDefault();}
+},{passive:false});
+document.addEventListener('pointermove',e=>{
+  if(stroke){stroke.ctx.lineTo(e.clientX-stroke.r.left,e.clientY-stroke.r.top);stroke.ctx.stroke();e.preventDefault();}
+  if(resz){resz.pad.style.height=Math.min(700,Math.max(70,resz.h+(e.clientY-resz.y)))+'px';e.preventDefault();}
+},{passive:false});
+document.addEventListener('pointerup',()=>{if(stroke){stroke=null;}if(resz){sizePad(resz.pad);resz=null;}});
+document.addEventListener('click',e=>{
+  const sw=e.target.closest('.sw');
+  if(sw){const b=sw.closest('.sketch');b.dataset.color=sw.dataset.color;b.dataset.erase='0';
+    b.querySelectorAll('.sw').forEach(x=>x.setAttribute('aria-pressed',String(x===sw)));
+    b.querySelector('.eraser').setAttribute('aria-pressed','false');}
+  const er=e.target.closest('.eraser');
+  if(er){const b=er.closest('.sketch'),on=b.dataset.erase!=='1';b.dataset.erase=on?'1':'0';er.setAttribute('aria-pressed',String(on));}
+  const cl=e.target.closest('.clear');
+  if(cl){const p=cl.closest('.sketch').querySelector('.pad');
+    if(p._canvas){const c=p._canvas.getContext('2d');c.save();c.setTransform(1,0,0,1,0,0);
+      c.clearRect(0,0,p._canvas.width,p._canvas.height);c.restore();}}
+});
+
+/* ── проверка ответов ──────────────────── */
+function norm(s){return String(s).toLowerCase().replace(/[–—−]/g,'-').replace(/[·*×]/g,'')
+  .replace(/,/g,'.').replace(/\s+/g,'').replace(/^(ответ:|x=|х=|=)/,'')
+  .replace(/(кг|км|см|мм|мл|руб\.?|р\.|шт\.?|г|л|%|°c|c)$/,'');}
+function nums(s){const m=String(s).replace(/[–—−]/g,'-').replace(/,/g,'.').match(/-?\d+(\.\d+)?/g);return m?m.map(Number):[];}
+function correct(u,ans){if(!u.trim())return false;const n=norm(u);
+  for(const v of String(ans).split('|')){
+    if(v[0]==='#'){const e=v.slice(1).split(';').map(Number).sort((a,b)=>a-b),g=nums(u).sort((a,b)=>a-b);
+      if(e.length===g.length&&e.every((x,i)=>Math.abs(x-g[i])<1e-9))return true;}
+    else if(v[0]==='@'){const e=v.slice(1).split(';').map(Number),g=nums(u);
+      if(e.length===g.length&&e.every((x,i)=>Math.abs(x-g[i])<1e-9))return true;}
+    else{const nv=norm(v);if(n===nv)return true;const a=parseFloat(n),b=parseFloat(nv);
+      if(!isNaN(a)&&!isNaN(b)&&String(a)===n&&String(b)===nv&&Math.abs(a-b)<1e-9)return true;}}
+  return false;}
+function shown(a){const v=String(a).split('|')[0];
+  return (v[0]==='#'||v[0]==='@')?v.slice(1).split(';').join('; ').replace(/\./g,','):v.replace(/\./g,',');}
+
+/* тип каждого задания — для отчёта родителям */
+const TYPES={
+0:Array(10).fill('Устный счёт'),
+1:['Сложение и вычитание отрицательных чисел','Сложение и вычитание отрицательных чисел',
+   'Степени отрицательных чисел','Умножение и деление отрицательных чисел',
+   'Умножение и деление отрицательных чисел','Задача на действия с числами',
+   'Сравнение чисел и модуль','Значение буквенного выражения'],
+2:['Часть от целого (проценты)','Целое по части (проценты)','Часть и целое в дробях',
+   'Часть от целого (проценты)','Часть от целого (проценты)','Часть и целое в дробях',
+   'Двойное изменение цены (проценты)','Двойное изменение цены (проценты)',
+   'Часть от целого (проценты)','Целое по части (проценты)'],
+3:['Решение пропорции','Решение пропорции','Решение пропорции','Прямая пропорциональность',
+   'Масштаб','Деление в отношении','Прямая пропорциональность','Обратная пропорциональность'],
+4:['Коэффициент выражения','Приведение подобных слагаемых','Коэффициент выражения',
+   'Раскрытие скобок','Раскрытие скобок и подобные','Значение буквенного выражения',
+   'Раскрытие скобок и подобные','Значение буквенного выражения'],
+5:['Линейное уравнение','Линейное уравнение','Линейное уравнение','Линейное уравнение',
+   'Уравнение с модулем','Задача, решаемая уравнением','Задача, решаемая уравнением',
+   'Задача, решаемая уравнением'],
+6:['Масса вещества в сплаве','Концентрация сплава','Разбавление раствора','Выпаривание раствора',
+   'Сплавление двух сплавов','Добавление чистого вещества','Задача на сухое вещество',
+   'Смешивание растворов','Добавление чистого вещества'],
+7:['Умножение и деление отрицательных чисел','Целое по части (проценты)','Решение пропорции',
+   'Раскрытие скобок и подобные','Линейное уравнение','Сплавление двух сплавов'],
+hw:['Умножение и деление отрицательных чисел','Двойное изменение цены (проценты)','Решение пропорции',
+   'Значение буквенного выражения','Линейное уравнение','Разбавление раствора','Задача на сухое вещество']
+};
+
+function taskHTML(t,i,group,padH,type){
+  const id='t'+(++uid);
+  state[id]={s:t.s,a:t.a,tries:0,got:0,done:false,ok:false,group:group,type:type||'Задание'};
+  return '<article class="task" data-id="'+id+'"><div class="head"><div class="num">'+i+'</div>'
+    +'<div class="text">'+t.q+'</div><div class="stars">'+'★'.repeat(t.s)+'</div></div>'
+    +sketchHTML(padH)
+    +'<div class="check"><input type="text" placeholder="Ответ" autocomplete="off">'
+    +'<button class="btn act">Проверить</button>'
+    +'<button class="btn ghost give">Показать ответ</button><span class="fb"></span></div></article>';
+}
+
+/* ── карта ─────────────────────────────── */
+const mapBox=document.getElementById('mapBox');
+function drawMap(){
+  const pts=PLANETS.map(p=>[p.x,p.y]).concat([[EARTH.x,EARTH.y]]);
+  let svg='<svg class="path" viewBox="0 0 100 100" preserveAspectRatio="none">'
+    +'<polyline points="'+pts.map(p=>p[0]+','+p[1]).join(' ')+'" fill="none" stroke="rgba(255,255,255,.28)" '
+    +'stroke-width=".4" stroke-dasharray="1.6 1.8" vector-effect="non-scaling-stroke"/></svg>';
+  let h='';
+  PLANETS.forEach((p,i)=>{
+    const st=planetStars(i),mx=pMax(p),done=planetDone(i);
+    h+='<div class="node'+(i>=unlocked?' locked':'')+(done?' done':'')+'" data-i="'+i+'" '
+      +'style="left:'+p.x+'%;top:'+p.y+'%">'
+      +'<button class="pl" style="--c1:'+p.c[0]+';--c2:'+p.c[1]+';--c3:'+p.c[2]+';animation-delay:-'+(i*.8)+'s" '
+      +(i>=unlocked?'disabled':'')+' aria-label="'+p.name+'">'
+      +(p.ring?'<span class="ring"></span><span class="orb" style="animation-delay:-'+(i*1.7)+'s"><span></span></span>':'')
+      +(i>=unlocked?'<span class="lock">🔒</span>':'')+'</button>'
+      +'<div class="nm">'+p.name+'</div><div class="tp">'+p.topic+'</div>'
+      +'<div class="pst">'+(i<unlocked?'★ '+st+' / '+mx:'закрыта')+'</div></div>';
+  });
+  const allDone=PLANETS.every((p,i)=>planetDone(i));
+  h+='<div class="node'+(allDone?'':' locked')+'" data-earth="1" style="left:'+EARTH.x+'%;top:'+EARTH.y+'%">'
+    +'<button class="pl" style="--c1:#8fe3ff;--c2:#2f7fe0;--c3:#12406e" '+(allDone?'':'disabled')+'>'
+    +(allDone?'':'<span class="lock">🔒</span>')+'</button>'
+    +'<div class="nm">Земля</div><div class="tp">Отчёт о полёте</div></div>';
+  h+='<svg id="rocket" viewBox="0 0 54 96"><defs><linearGradient id="fl" x1="0" y1="0" x2="0" y2="1">'
+    +'<stop offset="0" stop-color="#ff8a3d"/><stop offset="1" stop-color="#ff3d6e" stop-opacity="0"/></linearGradient></defs>'
+    +'<path class="flame" d="M27 44 L23 96 L31 96 Z" fill="url(#fl)"/>'
+    +'<path d="M27 4c7 8 10 20 10 30v12H17V34c0-10 3-22 10-30z" fill="#e9edff"/>'
+    +'<path d="M17 40 L8 54h9zM37 40l9 14h-9z" fill="#ff8fb0"/><circle cx="27" cy="26" r="5" fill="#6d4bf5"/></svg>';
+  mapBox.innerHTML=svg+h;
+  moveRocket();
+}
+function moveRocket(){
+  const r=document.getElementById('rocket');if(!r)return;
+  const i=Math.min(unlocked-1,PLANETS.length-1);
+  const p=PLANETS.every((x,k)=>planetDone(k))?EARTH:PLANETS[i];
+  r.style.left=(p.x+11)+'%';r.style.top=(p.y-3)+'%';
+}
+function planetTasks(i){return Object.entries(state).filter(([k,v])=>v.group==='p'+i);}
+function planetStars(i){return planetTasks(i).reduce((a,[,v])=>a+v.got,0);}
+function planetDone(i){const t=planetTasks(i);return t.length>0&&t.every(([,v])=>v.done);}
+
+mapBox.addEventListener('click',e=>{
+  const n=e.target.closest('.node');if(!n||n.classList.contains('locked'))return;
+  if(n.dataset.earth)showEarth();else openPlanet(+n.dataset.i);
+});
+
+/* ── экраны ────────────────────────────── */
+function screen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));
+  window.scrollTo({top:0,behavior:'smooth'});}
+const built={};
+function openPlanet(i){
+  if(startTs===null)startTs=Date.now();
+  openIdx=i;const p=PLANETS[i];
+  document.getElementById('pName').textContent=p.name;
+  document.getElementById('pSub').textContent=p.topic+' · максимум '+pMax(p)+'★';
+  const ic=document.getElementById('pIcon');
+  ic.style.setProperty('--c1',p.c[0]);ic.style.setProperty('--c2',p.c[1]);ic.style.setProperty('--c3',p.c[2]);
+  const box=document.getElementById('pTasks');
+  if(!built[i]){let h=(p.grid?'<div class="grid">':'');
+    p.tasks.forEach((t,k)=>h+=taskHTML(t,k+1,'p'+i,undefined,TYPES[i][k]));
+    h+=(p.grid?'</div>':'');
+    if(p.bonus)h+='<div class="bonus"><h3>Секретная миссия · ★★★★★</h3>'+taskHTML(p.bonus,'?','p'+i,170,TYPES[i][p.tasks.length])+'</div>';
+    built[i]=h;}
+  box.innerHTML=built[i];
+  screen('play');
+  requestAnimationFrame(()=>box.querySelectorAll('.pad').forEach(initPad));
+  renderFinish();
+}
+function renderFinish(){
+  const f=document.getElementById('pFinish');if(openIdx===null)return;
+  const i=openIdx,p=PLANETS[i];
+  if(!planetDone(i)){
+    const left=planetTasks(i).filter(([,v])=>!v.done).length;
+    f.innerHTML='<p class="sub" style="margin-top:16px">Осталось заданий на планете: '+left
+      +' · <button class="btn ghost" data-go="map">Вернуться на карту</button></p>';return;}
+  const nx=i+1<PLANETS.length?PLANETS[i+1]:null;
+  f.innerHTML='<div class="finish"><div class="burst">★ ★ ★</div>'
+    +'<h3>Планета «'+p.name+'» пройдена</h3>'
+    +'<div class="got">'+planetStars(i)+' / '+pMax(p)+'★</div>'
+    +'<p class="sub">'+(nx?'Открыта планета «'+nx.name+'» — '+nx.topic:'Все планеты пройдены. Пора возвращаться на Землю.')+'</p>'
+    +'<div style="margin-top:14px"><button class="btn big gold" data-go="'+(nx?'map':'earth')+'">'
+    +(nx?'Лететь дальше →':'Вернуться на Землю')+'</button></div></div>';
+  if(i+1>=unlocked&&nx){unlocked=i+2;justUnlocked=i+1;}
+}
+let justUnlocked=null;
+document.addEventListener('click',e=>{
+  const g=e.target.closest('[data-go]');if(!g)return;
+  if(g.dataset.go==='map'){drawMap();screen('map');
+    if(justUnlocked!==null){const n=mapBox.querySelector('.node[data-i="'+justUnlocked+'"]');
+      if(n){n.classList.add('just');n.scrollIntoView({block:'center',behavior:'smooth'});}justUnlocked=null;}}
+  else showEarth();
+});
+document.getElementById('toEarth').addEventListener('click',showEarth);
+
+/* ── счёт ──────────────────────────────── */
+function totalStars(){return Object.values(state).reduce((a,v)=>a+v.got,0);}
+function refresh(){
+  const t=totalStars(),rk=RANKS.find(r=>t>=r[0])[1];
+  document.getElementById('score').innerHTML='★ '+t+' <small>из '+TOTAL_MAX+'</small>';
+  document.getElementById('bar').style.width=Math.min(100,t/TOTAL_MAX*100)+'%';
+  document.getElementById('rank').textContent=rk;
+}
+document.addEventListener('click',e=>{
+  const card=e.target.closest('.task[data-id]');if(!card)return;
+  const st=state[card.dataset.id];if(!st||st.done)return;
+  const fb=card.querySelector('.fb'),inp=card.querySelector('input');
+  if(e.target.classList.contains('act')){
+    st.tries++;
+    if(correct(inp.value,st.a)){
+      st.got=st.tries===1?st.s:(st.tries===2?Math.max(1,Math.ceil(st.s/2)):1);
+      st.done=true;st.ok=true;card.classList.add('done');fb.className='fb ok';
+      fb.innerHTML='<span class="pop">Верно! +'+st.got+'★'+(st.tries>1?' (попытка '+st.tries+')':'')+'</span>';
+      inp.disabled=true;card.querySelector('.act').disabled=true;
+      const gv=card.querySelector('.give');if(gv)gv.remove();
+    }else{fb.className='fb no';
+      fb.textContent=st.tries===1?'Не то. Ещё попытка — будет половина звёзд.'
+        :(st.tries===2?'Снова мимо. Следующая верная попытка даст 1★.':'Проверь запись в клетчатом поле.');}
+    afterAnswer(st);
+  }
+  if(e.target.classList.contains('give')){
+    st.done=true;st.got=0;card.classList.add('given');fb.className='fb gray';
+    fb.textContent='Ответ: '+shown(st.a)+' · 0★';
+    inp.disabled=true;card.querySelector('.act').disabled=true;e.target.remove();
+    afterAnswer(st);}
+});
+function afterAnswer(st){refresh();checkRank();commentOn(st);
+  if(st.group==='hw')renderEarth();else renderFinish();}
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&e.target.tagName==='INPUT'&&e.target.closest('.check')){
+    e.preventDefault();e.target.closest('.check').querySelector('.act').click();}});
+
+/* ── Земля: аналитика ──────────────────── */
+let hwBuilt=false;
+function stats(i){
+  const t=planetTasks(i);
+  return {stars:planetStars(i),max:pMax(PLANETS[i]),
+    total:t.length,solved:t.filter(([,v])=>v.ok).length,
+    first:t.filter(([,v])=>v.ok&&v.tries===1).length,
+    hint:t.filter(([,v])=>v.done&&!v.ok).length,
+    touched:t.filter(([,v])=>v.done).length};
+}
+function showEarth(){renderEarth();screen('earth');}
+function byType(){
+  const m=new Map();
+  Object.values(state).forEach(v=>{
+    if(!v.done)return;
+    const r=m.get(v.type)||{n:0,ok:0,first:0,hint:0};
+    r.n++;if(v.ok){r.ok++;if(v.tries===1)r.first++;}else r.hint++;
+    m.set(v.type,r);});
+  return [...m.entries()].map(([type,r])=>{
+    const pc=Math.round(r.ok/r.n*100);
+    return {type:type,n:r.n,ok:r.ok,first:r.first,hint:r.hint,pc:pc,
+      mark:pc>=85?'Отлично':(pc>=55?'Хорошо':'Нужно повторить')};
+  }).sort((a,b)=>a.pc-b.pc);
+}
+function renderEarth(){
+  const t=totalStars(),rk=RANKS.find(r=>t>=r[0])[1];
+  const mins=startTs?Math.max(1,Math.round((Date.now()-startTs)/60000)):0;
+  const rows=PLANETS.map((p,i)=>({p,s:stats(i)}));
+  const types=byType();
+  const solved=types.reduce((a,r)=>a+r.ok,0),tried=types.reduce((a,r)=>a+r.n,0);
+  const firstAll=types.reduce((a,r)=>a+r.first,0);
+  const acc=tried?Math.round(solved/tried*100):0;
+  const weak=types.filter(r=>r.mark==='Нужно повторить').map(r=>r.type);
+  const strong=types.filter(r=>r.mark==='Отлично').map(r=>r.type);
+  const date=new Date().toLocaleDateString('ru-RU');
+
+  let h='<div class="report"><h2>Отчёт о полёте</h2>'
+    +'<p class="rmeta">Математика, 6 класс · '+date+(mins?' · время работы: '+mins+' мин':'')+'</p>'
+    +'<div class="big">'
+    +'<div class="kpi"><b>'+solved+' из '+tried+'</b><span>заданий решено верно</span></div>'
+    +'<div class="kpi"><b>'+acc+'%</b><span>точность</span></div>'
+    +'<div class="kpi"><b>'+firstAll+'</b><span>решено сразу, без ошибок</span></div>'
+    +'<div class="kpi"><b>'+t+'★</b><span>баллов из '+TOTAL_MAX+' · звание «'+rk+'»</span></div></div>';
+
+  if(!tried){
+    h+='<div class="note">Задания пока не решались — отчёт появится, как только ребёнок начнёт полёт.</div>';
+  }else{
+    h+='<h3 class="rh">Результаты по типам задач</h3>'
+      +'<table class="rt"><tr><th>Тип задачи</th><th>Решал</th><th>Верно</th><th>Без ошибок</th><th>Итог</th></tr>';
+    types.forEach(r=>{
+      const cl=r.mark==='Отлично'?'m-ok':(r.mark==='Хорошо'?'m-mid':'m-low');
+      h+='<tr><td>'+r.type+'</td><td>'+r.n+'</td><td>'+r.ok+'</td><td>'+r.first+'</td>'
+        +'<td><span class="mk '+cl+'">'+r.mark+'</span></td></tr>';
+    });
+    h+='</table>';
+
+    h+='<h3 class="rh">Как шёл полёт по темам</h3>';
+    rows.forEach(r=>{
+      if(!r.s.touched)return;
+      const pc=Math.round(r.s.stars/r.s.max*100);
+      h+='<div class="rrow"><div class="t"><span>'+r.p.topic+'</span>'
+        +'<i>верно '+r.s.solved+' из '+r.s.total+(r.s.hint?' · смотрел ответ '+r.s.hint:'')+'</i></div>'
+        +'<div class="track"><i style="width:'+pc+'%;background:linear-gradient(90deg,'+r.p.c[1]+','+r.p.c[0]+')"></i></div></div>';
+    });
+
+    h+='<div class="note"><b>Коротко для родителей.</b><br>'
+      +(strong.length?'Уверенно получается: '+strong.join(', ')+'.<br>':'')
+      +(weak.length?'Стоит порешать вместе: '+weak.join(', ')+'.<br>':'Тем, которые нужно срочно подтянуть, нет.<br>')
+      +'«Без ошибок» — это задачи, решённые с первой попытки. Звёзды: полное число за верный ответ сразу, '
+      +'половина со второй попытки, одна с третьей. Это игровые баллы, а не школьная оценка.</div>';
+  }
+
+  h+='<div class="acts"><button class="btn" id="copyRep">Скопировать отчёт для мамы</button>'
+    +(navigator.share?'<button class="btn ghost" id="shareRep">Отправить</button>':'')
+    +'<button class="btn ghost" id="printRep">Распечатать или сохранить PDF</button>'
+    +'<button class="btn ghost" data-go="map">Вернуться к карте</button></div>'
+    +'<textarea class="share" id="repText" readonly></textarea></div>';
+
+  h+='<h2 style="margin-top:34px">Домашнее задание</h2>'
+    +'<p class="sub" style="margin-bottom:10px">Максимум 17★ · ответы проверяются здесь же</p><div id="hwBox"></div>';
+
+  document.getElementById('earth').innerHTML=h;
+  const hwBox=document.getElementById('hwBox');
+  if(!hwBuilt){window._hwHTML=HW.map((x,k)=>taskHTML(x,k+1,'hw',undefined,TYPES.hw[k])).join('');hwBuilt=true;}
+  hwBox.innerHTML=window._hwHTML;
+  requestAnimationFrame(()=>hwBox.querySelectorAll('.pad').forEach(initPad));
+  restoreHW();
+
+  const txt='Математика, 6 класс · '+date+'\n'
+    +'Решено верно: '+solved+' из '+tried+' ('+acc+'%), с первой попытки: '+firstAll+'\n'
+    +'Игровые баллы: '+t+' из '+TOTAL_MAX+'★, звание «'+rk+'»\n\n'
+    +'По типам задач:\n'
+    +types.map(r=>'• '+r.type+' — верно '+r.ok+' из '+r.n+' ('+r.mark.toLowerCase()+')').join('\n')
+    +'\n\n'+(weak.length?'Стоит повторить: '+weak.join(', '):'Слабых тем нет')+'.';
+  document.getElementById('repText').value=txt;
+  document.getElementById('copyRep').onclick=function(){
+    const ta=document.getElementById('repText');ta.select();
+    (navigator.clipboard?navigator.clipboard.writeText(txt):Promise.reject())
+      .then(()=>{this.textContent='Скопировано ✓';},()=>{document.execCommand('copy');this.textContent='Скопировано ✓';});};
+  const sh=document.getElementById('shareRep');
+  if(sh)sh.onclick=()=>navigator.share({title:'Отчёт о полёте',text:txt}).catch(()=>{});
+  document.getElementById('printRep').onclick=()=>window.print();
+}
+function restoreHW(){
+  document.querySelectorAll('#hwBox .task[data-id]').forEach(card=>{
+    const st=state[card.dataset.id];if(!st.done)return;
+    const fb=card.querySelector('.fb'),inp=card.querySelector('input'),gv=card.querySelector('.give');
+    inp.disabled=true;card.querySelector('.act').disabled=true;if(gv)gv.remove();
+    if(st.ok){card.classList.add('done');fb.className='fb ok';fb.textContent='Верно! +'+st.got+'★';}
+    else{card.classList.add('given');fb.className='fb gray';fb.textContent='Ответ: '+shown(st.a)+' · 0★';}
+  });
+}
+
+/* ── сообщения командира ───────────────── */
+const TOASTS={
+  first:['Первая звезда в копилке. Дальше будет интереснее.'],
+  praise:['Так держать, стажёр. Курс верный.',
+    'Отличный расчёт — приборы подтверждают.',
+    'Ещё одна задача позади, топлива хватает.',
+    'Красиво решено. Записываю в бортовой журнал.',
+    'Чисто сработано. Продолжай в том же духе.'],
+  streak:['Три задания подряд без единой ошибки! Двигатели гудят от восторга.',
+    'Серия из трёх точных попаданий. Экипаж аплодирует.'],
+  hint:['Ничего страшного: даже опытные пилоты сверяются с картой. Разбери решение и лети дальше.',
+    'Ошибка — это тоже данные. Посмотри разбор и попробуй следующую задачу.'],
+  planet:['Планета покорена. Следующая уже на радаре.']
+};
+const tbox=document.getElementById('toasts');
+let tQueue=[],tBusy=false,tLast=0;
+function pick(a){return a[Math.floor(Math.random()*a.length)];}
+function say(text,opts){
+  opts=opts||{};
+  if(!opts.priority&&Date.now()-tLast<28000)return;
+  tQueue.push({text:text,cls:opts.cls||''});
+  if(opts.priority)tQueue.sort((a,b)=>(b.cls==='rankup')-(a.cls==='rankup'));
+  pumpToasts();
+}
+function pumpToasts(){
+  if(tBusy||!tQueue.length)return;
+  tBusy=true;tLast=Date.now();
+  const m=tQueue.shift();
+  const el=document.createElement('div');
+  el.className='toast '+m.cls;
+  el.innerHTML='<div class="ava"></div><div class="tx"><b>Командир корабля</b>'+m.text+'</div>';
+  tbox.appendChild(el);
+  const hide=()=>{if(el._gone)return;el._gone=true;el.classList.add('out');
+    setTimeout(()=>{el.remove();tBusy=false;pumpToasts();},360);};
+  el.addEventListener('click',hide);
+  setTimeout(hide,m.cls==='rankup'?8000:6000);
+}
+let okCount=0,streak=0,hintRow=0,lastRank=RANKS[RANKS.length-1][1];
+function commentOn(st){
+  if(st.ok){
+    okCount++;hintRow=0;
+    streak=st.tries===1?streak+1:0;
+    if(okCount===1)say(pick(TOASTS.first),{priority:true});
+    else if(streak===3){say(pick(TOASTS.streak));streak=0;}
+    else if(okCount%4===0)say(pick(TOASTS.praise));
+  }else{
+    hintRow++;streak=0;
+    if(hintRow===2)say(pick(TOASTS.hint));
+  }
+}
+function checkRank(){
+  const t=totalStars(),rk=RANKS.find(r=>t>=r[0])[1];
+  if(rk!==lastRank){
+    const was=lastRank;lastRank=rk;
+    say('Поздравляю! Ты больше не '+was+' — теперь твоё звание «'+rk+'». Так держать!',
+      {priority:true,cls:'rankup'});
+  }
+}
+
+/* ── брифинг ───────────────────────────── */
+const BRIEF=[
+ 'Здравствуй, стажёр!',
+ 'Добро пожаловать на наш корабль.',
+ 'Нас ждёт космический рейс по восьми планетам. На каждой планете тебя ждут задания.',
+ 'За каждое задание ты можешь получать звёзды, которые повышают твоё звание.',
+ 'Желаю тебе удачи!'
+];
+(function briefing(){
+  const veil=document.getElementById('veil'),box=document.getElementById('msgs');
+  const fast=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const close=()=>{veil.classList.add('off');};
+  function finish(){
+    const b=document.createElement('button');
+    b.className='btn big gold go';b.textContent='Погнали 🚀';
+    b.addEventListener('click',close);box.appendChild(b);b.focus();
+  }
+  if(fast){BRIEF.forEach(m=>{const d=document.createElement('div');d.className='msg';d.textContent=m;box.appendChild(d);});finish();return;}
+  let i=0;
+  function next(){
+    if(i>=BRIEF.length){finish();return;}
+    const dots=document.createElement('div');dots.className='dots';dots.innerHTML='<i></i><i></i><i></i>';
+    box.appendChild(dots);
+    setTimeout(()=>{
+      dots.remove();
+      const d=document.createElement('div');d.className='msg';d.textContent=BRIEF[i++];box.appendChild(d);
+      setTimeout(next,320);
+    },i===0?450:600+BRIEF[i].length*7);
+  }
+  next();
+})();
+
+drawMap();refresh();
+</script>
+</body>
+</html>
