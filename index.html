@@ -149,10 +149,15 @@ table.rt th:last-child,table.rt td:last-child{width:130px;text-align:right}
 .brief .go{width:100%;margin-top:8px;animation:msgIn .5s ease both}
 
 /* карта */
-.map{position:relative;margin:28px 0 0;height:1180px}
-.map svg.path{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
-.node{position:absolute;transform:translate(-50%,-50%);text-align:center;width:150px}
-.pl{width:92px;height:92px;border-radius:50%;margin:0 auto;position:relative;cursor:pointer;border:0;padding:0;
+.mapHint{color:var(--dim);font-size:13.5px;text-align:center;margin:14px 0 0}
+.galaxy{position:relative;width:100vw;margin-left:calc(50% - 50vw);padding:0 18px}
+.track{position:relative;display:flex;flex-wrap:wrap;justify-content:center;
+  gap:34px 20px;padding:30px 4px 10px}
+.node{position:relative;flex:1 1 128px;min-width:104px;max-width:190px;text-align:center}
+.node::before{content:"";position:absolute;left:-12px;right:-12px;top:calc(clamp(58px,8vw,96px)/2);
+  height:2px;background:repeating-linear-gradient(90deg,rgba(255,255,255,.3) 0 8px,transparent 8px 20px)}
+.pl{width:clamp(58px,8vw,96px);height:clamp(58px,8vw,96px);border-radius:50%;margin:0 auto;position:relative;
+  cursor:pointer;border:0;padding:0;z-index:1;
   background:radial-gradient(circle at 32% 26%,var(--c1),var(--c2) 58%,var(--c3));
   box-shadow:0 16px 34px -12px rgba(0,0,0,.85), inset -10px -14px 26px rgba(0,0,0,.42);
   animation:float 7s ease-in-out infinite;transition:transform .3s}
@@ -175,17 +180,20 @@ table.rt th:last-child,table.rt td:last-child{width:130px;text-align:right}
 .ring{position:absolute;left:50%;top:50%;width:150%;height:44%;transform:translate(-50%,-50%) rotate(-22deg);
   border-radius:50%;border:7px solid rgba(255,255,255,.42);box-shadow:0 0 14px rgba(255,255,255,.25);pointer-events:none}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
-.node.locked .pl{filter:grayscale(.85) brightness(.42);cursor:not-allowed;animation:none}
-.node.locked .pl:hover{transform:none}
-.lock{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:26px}
-.node.done .pl{box-shadow:0 0 0 4px rgba(79,216,143,.5),0 16px 34px -12px rgba(0,0,0,.85)}
-.nm{font-size:14.5px;font-weight:700;margin-top:8px;line-height:1.25}
+.node.done .pl{box-shadow:0 0 0 4px rgba(79,216,143,.55),0 16px 34px -12px rgba(0,0,0,.85),
+  inset -10px -14px 26px rgba(0,0,0,.42)}
+.node.done .nm,.node.done .pst{color:var(--ok)}
+.tick{position:absolute;left:calc(50% + clamp(58px,8vw,96px)/2 - 12px);top:-4px;width:28px;height:28px;
+  border-radius:50%;background:var(--ok);color:#06331e;font-size:16px;font-weight:800;z-index:3;
+  display:flex;align-items:center;justify-content:center;box-shadow:0 5px 14px rgba(0,0,0,.55);
+  animation:pop .5s ease}
+.node.cur .pl{box-shadow:0 0 0 4px rgba(255,215,94,.5),0 16px 34px -12px rgba(0,0,0,.85),
+  inset -10px -14px 26px rgba(0,0,0,.42)}
+.nm{font-size:14.5px;font-weight:700;margin-top:10px;line-height:1.25}
 .tp{font-size:12.5px;color:var(--dim);line-height:1.3}
 .pst{font-size:13px;color:var(--star);margin-top:3px}
-.node.just .pl{animation:unlock 1.1s ease}
-@keyframes unlock{0%{box-shadow:0 0 0 0 rgba(255,215,94,.75)}70%{box-shadow:0 0 0 26px rgba(255,215,94,0)}100%{box-shadow:0 0 0 0 rgba(255,215,94,0)}}
-#rocket{position:absolute;width:44px;height:44px;transform:translate(-50%,-50%);z-index:5;
-  transition:left 1.3s cubic-bezier(.5,0,.3,1),top 1.3s cubic-bezier(.5,0,.3,1);pointer-events:none;
+#rocket{position:absolute;width:40px;height:40px;transform:translate(-50%,-100%);z-index:5;
+  transition:left .9s cubic-bezier(.5,0,.3,1),top .9s cubic-bezier(.5,0,.3,1);pointer-events:none;
   filter:drop-shadow(0 6px 14px rgba(255,138,61,.6))}
 
 /* планета-урок */
@@ -276,8 +284,8 @@ h2{font-size:clamp(23px,4.4vw,32px);margin:0;font-weight:800;letter-spacing:-.01
 .rrow{margin:11px 0}
 .rrow .t{display:flex;justify-content:space-between;font-size:15px;gap:10px}
 .rrow .t i{font-style:normal;color:var(--dim);font-size:13.5px;white-space:nowrap}
-.track{height:10px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden;margin-top:5px}
-.track i{display:block;height:100%;border-radius:99px;transition:width .8s ease}
+.rbar{height:10px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden;margin-top:5px}
+.rbar i{display:block;height:100%;border-radius:99px;transition:width .8s ease}
 .note{background:rgba(53,200,232,.1);border:1px solid rgba(53,200,232,.3);border-radius:16px;
   padding:14px 16px;margin-top:18px;font-size:15.5px}
 .note b{color:var(--cyan)}
@@ -287,10 +295,12 @@ textarea.share{width:100%;min-height:150px;margin-top:14px;background:rgba(0,0,0
 footer{margin-top:40px;padding-top:16px;border-top:1px solid rgba(255,255,255,.1);color:var(--dim);font-size:13.5px;text-align:center}
 
 @media (max-width:620px){
-  .map{height:1080px}
-  .pl{width:70px;height:70px}
-  .node{width:120px}
-  .nm{font-size:13px}.tp{font-size:11.5px}
+  .galaxy{padding:0 10px}
+  .track{gap:26px 12px}
+  .node{flex:1 1 92px;min-width:88px}
+  .nm{font-size:12.5px;margin-top:8px}.tp{font-size:11px}
+  .pst{font-size:11.5px}
+  .tick{width:22px;height:22px;font-size:13px}
   .sketch,.check{margin-left:0}
   .check input{flex:1;width:auto;min-width:90px}
 }
@@ -301,7 +311,7 @@ footer{margin-top:40px;padding-top:16px;border-top:1px solid rgba(255,255,255,.1
   .report{background:#fff!important;border:1px solid #999;color:#111}
   .report h2,.kpi b{color:#111}
   .kpi,.note{background:#fff!important;border:1px solid #bbb}
-  .track{background:#eee}.track i{background:#666!important}
+  .rbar{background:#eee}.rbar i{background:#666!important}
   .rrow .t i,.rmeta,.kpi span{color:#444}
   .rh{color:#111}
   table.rt th{color:#444;border-bottom:1px solid #999}
@@ -323,7 +333,8 @@ footer{margin-top:40px;padding-top:16px;border-top:1px solid rgba(255,255,255,.1
 <!-- КАРТА -->
 <section class="screen on" id="map">
   <div class="mapActs"><button class="mini" id="toEarth">Вернуться на Землю · отчёт о полёте</button></div>
-  <div class="map" id="mapBox"></div>
+  <div class="galaxy" id="mapBox"></div>
+  <p class="mapHint">Все планеты открыты — проходи в любом порядке</p>
 </section>
 
 <!-- ПЛАНЕТА -->
@@ -431,7 +442,6 @@ const PLANETS=[
   {q:'Решите уравнение: 7x − (3x − 8) = 24',s:3,a:'4'},
   {q:'Сплавили 150 г сплава с 30% меди и 250 г сплава с 14% меди. Найдите концентрацию меди в новом сплаве (в процентах).',s:4,a:'20'}]}
 ];
-const EARTH={x:18,y:6};
 const HW=[
   {q:'Вычислите: −5,6 : (−0,7) − 8',s:1,a:'0'},
   {q:'Цена 2500 р. снизилась на 12%, а затем ещё на 25%. Какой стала цена?',s:2,a:'1650'},
@@ -442,7 +452,7 @@ const HW=[
   {q:'Свежие грибы содержат 90% воды, сушёные — 12%. Сколько сушёных грибов получится из 22 кг свежих?',s:4,a:'2.5'}];
 
 /* ── состояние ─────────────────────────── */
-const state={};let uid=0,unlocked=1,openIdx=null,startTs=null;
+const state={};let uid=0,openIdx=null,startTs=null;
 function pMax(p){return p.tasks.reduce((a,t)=>a+t.s,0)+(p.bonus?p.bonus.s:0);}
 const TOTAL_MAX=PLANETS.reduce((a,p)=>a+pMax(p),0)+HW.reduce((a,t)=>a+t.s,0);
 
@@ -455,13 +465,14 @@ function padTools(){
 }
 function sketchHTML(h){return '<div class="sketch" data-color="'+COLORS[0]+'" data-erase="0">'+padTools()
   +'<div class="pad"'+(h?' style="height:'+h+'px"':'')+'></div><div class="grip"></div></div>';}
-const DPR=Math.min(2,window.devicePixelRatio||1);
+const DPR=Math.min(1.5,window.devicePixelRatio||1);
 const RO=window.ResizeObserver?new ResizeObserver(es=>es.forEach(e=>sizePad(e.target))):null;
 function initPad(pad){if(pad._ready||!pad.clientWidth)return;
   const c=document.createElement('canvas');pad.appendChild(c);pad._canvas=c;pad._ready=true;
   sizePad(pad);if(RO)RO.observe(pad);}
 function sizePad(pad){const c=pad._canvas;if(!c)return;
-  const w=Math.max(1,Math.round(pad.clientWidth)),h=Math.max(1,Math.round(pad.clientHeight));
+  if(!pad.clientWidth||!pad.clientHeight)return;
+  const w=Math.round(pad.clientWidth),h=Math.round(pad.clientHeight);
   if(c.width===Math.round(w*DPR)&&c.height===Math.round(h*DPR))return;
   let snap=null;
   if(c.width&&c.height){snap=document.createElement('canvas');snap.width=c.width;snap.height=c.height;
@@ -562,54 +573,56 @@ function taskHTML(t,i,group,padH,type){
 /* ── карта ─────────────────────────────── */
 const mapBox=document.getElementById('mapBox');
 function drawMap(){
-  const pts=PLANETS.map(p=>[p.x,p.y]).concat([[EARTH.x,EARTH.y]]);
-  let svg='<svg class="path" viewBox="0 0 100 100" preserveAspectRatio="none">'
-    +'<polyline points="'+pts.map(p=>p[0]+','+p[1]).join(' ')+'" fill="none" stroke="rgba(255,255,255,.28)" '
-    +'stroke-width=".4" stroke-dasharray="1.6 1.8" vector-effect="non-scaling-stroke"/></svg>';
-  let h='';
+  let h='<div class="track" id="track">';
   PLANETS.forEach((p,i)=>{
-    const st=planetStars(i),mx=pMax(p),done=planetDone(i);
-    h+='<div class="node'+(i>=unlocked?' locked':'')+(done?' done':'')+'" data-i="'+i+'" '
-      +'style="left:'+p.x+'%;top:'+p.y+'%">'
+    const st=planetStars(i),mx=pMax(p),done=planetDone(i),
+          started=planetTasks(i).some(([,v])=>v.done);
+    h+='<div class="node'+(done?' done':(started?' cur':''))+'" data-i="'+i+'">'
+      +(done?'<span class="tick">✓</span>':'')
       +'<button class="pl" style="--c1:'+p.c[0]+';--c2:'+p.c[1]+';--c3:'+p.c[2]+';animation-delay:-'+(i*.8)+'s" '
-      +(i>=unlocked?'disabled':'')+' aria-label="'+p.name+'">'
+      +'aria-label="'+p.name+'">'
       +(p.ring?'<span class="ring"></span><span class="orb" style="animation-delay:-'+(i*1.7)+'s"><span></span></span>':'')
-      +(i>=unlocked?'<span class="lock">🔒</span>':'')+'</button>'
+      +'</button>'
       +'<div class="nm">'+p.name+'</div><div class="tp">'+p.topic+'</div>'
-      +'<div class="pst">'+(i<unlocked?'★ '+st+' / '+mx:'закрыта')+'</div></div>';
+      +'<div class="pst">'+(done?'пройдена · ★'+st+'/'+mx:'★ '+st+' / '+mx)+'</div></div>';
   });
   const allDone=PLANETS.every((p,i)=>planetDone(i));
-  h+='<div class="node'+(allDone?'':' locked')+'" data-earth="1" style="left:'+EARTH.x+'%;top:'+EARTH.y+'%">'
-    +'<button class="pl" style="--c1:#8fe3ff;--c2:#2f7fe0;--c3:#12406e" '+(allDone?'':'disabled')+'>'
-    +(allDone?'':'<span class="lock">🔒</span>')+'</button>'
-    +'<div class="nm">Земля</div><div class="tp">Отчёт о полёте</div></div>';
+  h+='<div class="node'+(allDone?' done':'')+'" data-earth="1">'
+    +(allDone?'<span class="tick">✓</span>':'')
+    +'<button class="pl" style="--c1:#8fe3ff;--c2:#2f7fe0;--c3:#12406e;animation-delay:-3s"></button>'
+    +'<div class="nm">Земля</div><div class="tp">Отчёт о полёте</div>'
+    +'<div class="pst">'+(allDone?'рейс завершён':'можно вернуться')+'</div></div>';
   h+='<svg id="rocket" viewBox="0 0 54 96"><defs><linearGradient id="fl" x1="0" y1="0" x2="0" y2="1">'
     +'<stop offset="0" stop-color="#ff8a3d"/><stop offset="1" stop-color="#ff3d6e" stop-opacity="0"/></linearGradient></defs>'
     +'<path class="flame" d="M27 44 L23 96 L31 96 Z" fill="url(#fl)"/>'
     +'<path d="M27 4c7 8 10 20 10 30v12H17V34c0-10 3-22 10-30z" fill="#e9edff"/>'
     +'<path d="M17 40 L8 54h9zM37 40l9 14h-9z" fill="#ff8fb0"/><circle cx="27" cy="26" r="5" fill="#6d4bf5"/></svg>';
-  mapBox.innerHTML=svg+h;
-  moveRocket();
+  h+='</div>';
+  mapBox.innerHTML=h;
+  requestAnimationFrame(moveRocket);
 }
-function moveRocket(){
-  const r=document.getElementById('rocket');if(!r)return;
-  const i=Math.min(unlocked-1,PLANETS.length-1);
-  const p=PLANETS.every((x,k)=>planetDone(k))?EARTH:PLANETS[i];
-  r.style.left=(p.x+11)+'%';r.style.top=(p.y-3)+'%';
+function moveRocket(scroll){
+  const r=document.getElementById('rocket'),track=document.getElementById('track');
+  if(!r||!track)return;
+  let i=PLANETS.findIndex((p,k)=>!planetDone(k));
+  const node=i<0?track.querySelector('[data-earth]'):track.querySelector('.node[data-i="'+i+'"]');
+  if(!node)return;
+  r.style.left=(node.offsetLeft+node.offsetWidth/2)+'px';
+  r.style.top=(node.offsetTop+4)+'px';
+  if(scroll)node.scrollIntoView({block:'nearest',behavior:'smooth'});
 }
 function planetTasks(i){return Object.entries(state).filter(([k,v])=>v.group==='p'+i);}
 function planetStars(i){return planetTasks(i).reduce((a,[,v])=>a+v.got,0);}
 function planetDone(i){const t=planetTasks(i);return t.length>0&&t.every(([,v])=>v.done);}
 
 mapBox.addEventListener('click',e=>{
-  const n=e.target.closest('.node');if(!n||n.classList.contains('locked'))return;
+  const n=e.target.closest('.node');if(!n)return;
   if(n.dataset.earth)showEarth();else openPlanet(+n.dataset.i);
 });
 
 /* ── экраны ────────────────────────────── */
 function screen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));
   window.scrollTo({top:0,behavior:'smooth'});}
-const built={};
 function openPlanet(i){
   if(startTs===null)startTs=Date.now();
   openIdx=i;const p=PLANETS[i];
@@ -618,14 +631,18 @@ function openPlanet(i){
   const ic=document.getElementById('pIcon');
   ic.style.setProperty('--c1',p.c[0]);ic.style.setProperty('--c2',p.c[1]);ic.style.setProperty('--c3',p.c[2]);
   const box=document.getElementById('pTasks');
-  if(!built[i]){let h=(p.grid?'<div class="grid">':'');
+  let pane=box.querySelector('.pane[data-p="'+i+'"]');
+  if(!pane){
+    pane=document.createElement('div');pane.className='pane';pane.dataset.p=i;
+    let h=(p.grid?'<div class="grid">':'');
     p.tasks.forEach((t,k)=>h+=taskHTML(t,k+1,'p'+i,undefined,TYPES[i][k]));
     h+=(p.grid?'</div>':'');
-    if(p.bonus)h+='<div class="bonus"><h3>Секретная миссия · ★★★★★</h3>'+taskHTML(p.bonus,'?','p'+i,170,TYPES[i][p.tasks.length])+'</div>';
-    built[i]=h;}
-  box.innerHTML=built[i];
+    if(p.bonus)h+='<div class="bonus"><h3>Секретная миссия · ★★★★★</h3>'
+      +taskHTML(p.bonus,'?','p'+i,170,TYPES[i][p.tasks.length])+'</div>';
+    pane.innerHTML=h;box.appendChild(pane);
+  }
+  box.querySelectorAll('.pane').forEach(x=>{x.hidden=(x!==pane);});
   screen('play');
-  requestAnimationFrame(()=>box.querySelectorAll('.pad').forEach(initPad));
   renderFinish();
 }
 function renderFinish(){
@@ -639,17 +656,14 @@ function renderFinish(){
   f.innerHTML='<div class="finish"><div class="burst">★ ★ ★</div>'
     +'<h3>Планета «'+p.name+'» пройдена</h3>'
     +'<div class="got">'+planetStars(i)+' / '+pMax(p)+'★</div>'
-    +'<p class="sub">'+(nx?'Открыта планета «'+nx.name+'» — '+nx.topic:'Все планеты пройдены. Пора возвращаться на Землю.')+'</p>'
+    +'<p class="sub">'+(nx?'Следующая по курсу — «'+nx.name+'»: '+nx.topic
+      :'Все планеты пройдены. Пора возвращаться на Землю.')+'</p>'
     +'<div style="margin-top:14px"><button class="btn big gold" data-go="'+(nx?'map':'earth')+'">'
     +(nx?'Лететь дальше →':'Вернуться на Землю')+'</button></div></div>';
-  if(i+1>=unlocked&&nx){unlocked=i+2;justUnlocked=i+1;}
 }
-let justUnlocked=null;
 document.addEventListener('click',e=>{
   const g=e.target.closest('[data-go]');if(!g)return;
-  if(g.dataset.go==='map'){drawMap();screen('map');
-    if(justUnlocked!==null){const n=mapBox.querySelector('.node[data-i="'+justUnlocked+'"]');
-      if(n){n.classList.add('just');n.scrollIntoView({block:'center',behavior:'smooth'});}justUnlocked=null;}}
+  if(g.dataset.go==='map'){drawMap();screen('map');requestAnimationFrame(()=>moveRocket(true));}
   else showEarth();
 });
 document.getElementById('toEarth').addEventListener('click',showEarth);
@@ -686,13 +700,13 @@ document.addEventListener('click',e=>{
     afterAnswer(st);}
 });
 function afterAnswer(st){refresh();checkRank();commentOn(st);
-  if(st.group==='hw')renderEarth();else renderFinish();}
+  if(st.group==='hw'){if(document.getElementById('repBox'))renderEarth();}
+  else renderFinish();}
 document.addEventListener('keydown',e=>{
   if(e.key==='Enter'&&e.target.tagName==='INPUT'&&e.target.closest('.check')){
     e.preventDefault();e.target.closest('.check').querySelector('.act').click();}});
 
 /* ── Земля: аналитика ──────────────────── */
-let hwBuilt=false;
 function stats(i){
   const t=planetTasks(i);
   return {stars:planetStars(i),max:pMax(PLANETS[i]),
@@ -701,7 +715,16 @@ function stats(i){
     hint:t.filter(([,v])=>v.done&&!v.ok).length,
     touched:t.filter(([,v])=>v.done).length};
 }
-function showEarth(){renderEarth();screen('earth');}
+function ensureEarth(){
+  const e=document.getElementById('earth');
+  if(e.dataset.ready)return;
+  e.innerHTML='<div id="repBox"></div>'
+    +'<h2 style="margin-top:34px">Домашнее задание</h2>'
+    +'<p class="sub" style="margin-bottom:10px">Максимум 17★ · ответы проверяются здесь же</p>'
+    +'<div id="hwBox">'+HW.map((x,k)=>taskHTML(x,k+1,'hw',undefined,TYPES.hw[k])).join('')+'</div>';
+  e.dataset.ready='1';
+}
+function showEarth(){ensureEarth();renderEarth();screen('earth');}
 function byType(){
   const m=new Map();
   Object.values(state).forEach(v=>{
@@ -753,7 +776,7 @@ function renderEarth(){
       const pc=Math.round(r.s.stars/r.s.max*100);
       h+='<div class="rrow"><div class="t"><span>'+r.p.topic+'</span>'
         +'<i>верно '+r.s.solved+' из '+r.s.total+(r.s.hint?' · смотрел ответ '+r.s.hint:'')+'</i></div>'
-        +'<div class="track"><i style="width:'+pc+'%;background:linear-gradient(90deg,'+r.p.c[1]+','+r.p.c[0]+')"></i></div></div>';
+        +'<div class="rbar"><i style="width:'+pc+'%;background:linear-gradient(90deg,'+r.p.c[1]+','+r.p.c[0]+')"></i></div></div>';
     });
 
     h+='<div class="note"><b>Коротко для родителей.</b><br>'
@@ -769,15 +792,7 @@ function renderEarth(){
     +'<button class="btn ghost" data-go="map">Вернуться к карте</button></div>'
     +'<textarea class="share" id="repText" readonly></textarea></div>';
 
-  h+='<h2 style="margin-top:34px">Домашнее задание</h2>'
-    +'<p class="sub" style="margin-bottom:10px">Максимум 17★ · ответы проверяются здесь же</p><div id="hwBox"></div>';
-
-  document.getElementById('earth').innerHTML=h;
-  const hwBox=document.getElementById('hwBox');
-  if(!hwBuilt){window._hwHTML=HW.map((x,k)=>taskHTML(x,k+1,'hw',undefined,TYPES.hw[k])).join('');hwBuilt=true;}
-  hwBox.innerHTML=window._hwHTML;
-  requestAnimationFrame(()=>hwBox.querySelectorAll('.pad').forEach(initPad));
-  restoreHW();
+  document.getElementById('repBox').innerHTML=h;
 
   const txt='Математика, 6 класс · '+date+'\n'
     +'Решено верно: '+solved+' из '+tried+' ('+acc+'%), с первой попытки: '+firstAll+'\n'
@@ -793,15 +808,6 @@ function renderEarth(){
   const sh=document.getElementById('shareRep');
   if(sh)sh.onclick=()=>navigator.share({title:'Отчёт о полёте',text:txt}).catch(()=>{});
   document.getElementById('printRep').onclick=()=>window.print();
-}
-function restoreHW(){
-  document.querySelectorAll('#hwBox .task[data-id]').forEach(card=>{
-    const st=state[card.dataset.id];if(!st.done)return;
-    const fb=card.querySelector('.fb'),inp=card.querySelector('input'),gv=card.querySelector('.give');
-    inp.disabled=true;card.querySelector('.act').disabled=true;if(gv)gv.remove();
-    if(st.ok){card.classList.add('done');fb.className='fb ok';fb.textContent='Верно! +'+st.got+'★';}
-    else{card.classList.add('given');fb.className='fb gray';fb.textContent='Ответ: '+shown(st.a)+' · 0★';}
-  });
 }
 
 /* ── сообщения командира ───────────────── */
