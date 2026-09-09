@@ -161,24 +161,58 @@ table.rt th:last-child,table.rt td:last-child{width:130px;text-align:right}
   background:radial-gradient(circle at 32% 26%,var(--c1),var(--c2) 58%,var(--c3));
   box-shadow:0 16px 34px -12px rgba(0,0,0,.85), inset -10px -14px 26px rgba(0,0,0,.42);
   animation:float 7s ease-in-out infinite;transition:transform .3s}
-.pl::before{content:"";position:absolute;inset:0;border-radius:50%;opacity:.35;
-  background:repeating-linear-gradient(-16deg,rgba(255,255,255,.35) 0 5px,transparent 5px 16px);
-  background-size:200% 100%;animation:surf 11s linear infinite;
-  -webkit-mask:radial-gradient(circle at 50% 50%,#000 68%,transparent 70%);
-  mask:radial-gradient(circle at 50% 50%,#000 68%,transparent 70%)}
-@keyframes surf{to{background-position:-200% 0}}
+.pl::after{content:"";position:absolute;left:16%;top:12%;width:34%;height:24%;border-radius:50%;
+  background:rgba(255,255,255,.55);filter:blur(6px);z-index:2}
+.skin{position:absolute;inset:0;border-radius:50%;overflow:hidden;z-index:1}
+.pbig .skin,.pbig .ring,.pbig .orb{pointer-events:none}
+/* лавовая */
+.lava{position:absolute;inset:-25%;opacity:.6;background-size:200% 200%;
+  background-image:repeating-radial-gradient(circle at 38% 44%,
+    rgba(255,255,255,.42) 0 6px,transparent 6px 15px),
+    radial-gradient(closest-side at 30% 35%,rgba(255,255,255,.3),transparent 70%);
+  animation:surf 18s linear infinite}
+/* газовый гигант с полосами */
+.bands{position:absolute;inset:-16%;
+  background:repeating-linear-gradient(3deg,
+    rgba(255,255,255,.22) 0 5px,transparent 5px 11px,
+    rgba(0,0,0,.2) 11px 17px,transparent 17px 26px)}
+.bands.soft{opacity:.5}
+/* пятна-материки */
+.sp{position:absolute;background:rgba(255,255,255,.24);filter:blur(.6px);
+  border-radius:46% 54% 40% 60%/55% 45% 60% 40%}
+/* кратеры */
+.cr{position:absolute;border-radius:50%;background:rgba(0,0,0,.16);
+  box-shadow:inset 1px 2px 3px rgba(0,0,0,.4),inset -1px -2px 3px rgba(255,255,255,.22)}
+/* вихри */
+.swirl{position:absolute;inset:-30%;opacity:.55;
+  background:repeating-radial-gradient(circle at 50% 50%,
+    rgba(255,255,255,.3) 0 4px,transparent 4px 13px);
+  animation:spinSlow 30s linear infinite}
+@keyframes spinSlow{to{transform:rotate(360deg)}}
+/* ледяная с трещинами */
+.ice{position:absolute;inset:0;
+  background:
+    linear-gradient(114deg,transparent 45%,rgba(255,255,255,.55) 46.5%,transparent 48%),
+    linear-gradient(58deg,transparent 58%,rgba(255,255,255,.4) 59.5%,transparent 61%),
+    linear-gradient(150deg,transparent 28%,rgba(255,255,255,.35) 29.5%,transparent 31%),
+    radial-gradient(circle at 70% 26%,rgba(255,255,255,.35) 0 8%,transparent 9%)}
 .orb{position:absolute;inset:-24%;animation:orbit 13s linear infinite;pointer-events:none}
 .orb span{position:absolute;top:0;left:50%;width:13px;height:13px;border-radius:50%;transform:translate(-50%,-50%);
   background:radial-gradient(circle at 33% 30%,#fff,#a9d8ff 55%,#3a5fbf);
   box-shadow:0 0 9px rgba(169,216,255,.75)}
 @keyframes orbit{to{transform:rotate(360deg)}}
+@keyframes surf{to{background-position:-200% 0}}
 #rocket .flame{transform-origin:27px 46px;animation:flame .3s ease-in-out infinite alternate}
 @keyframes flame{from{transform:scale(.86,.7);opacity:.7}to{transform:scale(1.05,1.15);opacity:1}}
-.pl::after{content:"";position:absolute;left:16%;top:12%;width:34%;height:24%;border-radius:50%;
-  background:rgba(255,255,255,.55);filter:blur(6px)}
 .pl:hover{transform:scale(1.07)}
 .ring{position:absolute;left:50%;top:50%;width:150%;height:44%;transform:translate(-50%,-50%) rotate(-22deg);
-  border-radius:50%;border:7px solid rgba(255,255,255,.42);box-shadow:0 0 14px rgba(255,255,255,.25);pointer-events:none}
+  border-radius:50%;border:7px solid rgba(255,255,255,.42);box-shadow:0 0 14px rgba(255,255,255,.25);
+  pointer-events:none;z-index:3}
+.ring.r2{width:126%;height:34%;transform:translate(-50%,-50%) rotate(14deg);border-width:4px;
+  border-color:rgba(255,215,94,.5);box-shadow:0 0 12px rgba(255,215,94,.3)}
+.orb.o2{inset:-38%;animation-duration:19s;animation-direction:reverse}
+.orb.o2 span{width:9px;height:9px;background:radial-gradient(circle at 33% 30%,#fff,#ffd0a0 55%,#e07a2f);
+  box-shadow:0 0 8px rgba(255,180,120,.8)}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
 .node.done .pl{box-shadow:0 0 0 4px rgba(79,216,143,.55),0 16px 34px -12px rgba(0,0,0,.85),
   inset -10px -14px 26px rgba(0,0,0,.42)}
@@ -570,6 +604,30 @@ function taskHTML(t,i,group,padH,type){
     +'<button class="btn ghost give">Показать ответ</button><span class="fb"></span></div></article>';
 }
 
+/* ── внешний вид планет ────────────────── */
+const LOOKS=['lava','bands','spots','ring','craters','swirl','ring2','ice'];
+function skin(i){
+  const L=LOOKS[i]||'bands';
+  let s='<span class="skin">';
+  if(L==='lava')s+='<span class="lava"></span>';
+  else if(L==='bands')s+='<span class="bands"></span>';
+  else if(L==='spots')s+='<span class="sp" style="left:10%;top:24%;width:42%;height:26%"></span>'
+    +'<span class="sp" style="left:56%;top:14%;width:28%;height:20%"></span>'
+    +'<span class="sp" style="left:34%;top:58%;width:46%;height:28%"></span>';
+  else if(L==='craters')s+='<span class="cr" style="left:18%;top:22%;width:26%;height:26%"></span>'
+    +'<span class="cr" style="left:56%;top:32%;width:17%;height:17%"></span>'
+    +'<span class="cr" style="left:32%;top:58%;width:21%;height:21%"></span>'
+    +'<span class="cr" style="left:64%;top:64%;width:13%;height:13%"></span>';
+  else if(L==='swirl')s+='<span class="swirl"></span>';
+  else if(L==='ice')s+='<span class="ice"></span>';
+  else s+='<span class="bands soft"></span>';
+  s+='</span>';
+  if(L==='ring')s+='<span class="ring"></span><span class="orb"><span></span></span>';
+  if(L==='ring2')s+='<span class="ring"></span><span class="ring r2"></span>'
+    +'<span class="orb"><span></span></span><span class="orb o2"><span></span></span>';
+  return s;
+}
+
 /* ── карта ─────────────────────────────── */
 const mapBox=document.getElementById('mapBox');
 function drawMap(){
@@ -580,18 +638,10 @@ function drawMap(){
     h+='<div class="node'+(done?' done':(started?' cur':''))+'" data-i="'+i+'">'
       +(done?'<span class="tick">✓</span>':'')
       +'<button class="pl" style="--c1:'+p.c[0]+';--c2:'+p.c[1]+';--c3:'+p.c[2]+';animation-delay:-'+(i*.8)+'s" '
-      +'aria-label="'+p.name+'">'
-      +(p.ring?'<span class="ring"></span><span class="orb" style="animation-delay:-'+(i*1.7)+'s"><span></span></span>':'')
-      +'</button>'
+      +'aria-label="'+p.name+'">'+skin(i)+'</button>'
       +'<div class="nm">'+p.name+'</div><div class="tp">'+p.topic+'</div>'
       +'<div class="pst">'+(done?'пройдена · ★'+st+'/'+mx:'★ '+st+' / '+mx)+'</div></div>';
   });
-  const allDone=PLANETS.every((p,i)=>planetDone(i));
-  h+='<div class="node'+(allDone?' done':'')+'" data-earth="1">'
-    +(allDone?'<span class="tick">✓</span>':'')
-    +'<button class="pl" style="--c1:#8fe3ff;--c2:#2f7fe0;--c3:#12406e;animation-delay:-3s"></button>'
-    +'<div class="nm">Земля</div><div class="tp">Отчёт о полёте</div>'
-    +'<div class="pst">'+(allDone?'рейс завершён':'можно вернуться')+'</div></div>';
   h+='<svg id="rocket" viewBox="0 0 54 96"><defs><linearGradient id="fl" x1="0" y1="0" x2="0" y2="1">'
     +'<stop offset="0" stop-color="#ff8a3d"/><stop offset="1" stop-color="#ff3d6e" stop-opacity="0"/></linearGradient></defs>'
     +'<path class="flame" d="M27 44 L23 96 L31 96 Z" fill="url(#fl)"/>'
@@ -605,7 +655,8 @@ function moveRocket(scroll){
   const r=document.getElementById('rocket'),track=document.getElementById('track');
   if(!r||!track)return;
   let i=PLANETS.findIndex((p,k)=>!planetDone(k));
-  const node=i<0?track.querySelector('[data-earth]'):track.querySelector('.node[data-i="'+i+'"]');
+  if(i<0)i=PLANETS.length-1;
+  const node=track.querySelector('.node[data-i="'+i+'"]');
   if(!node)return;
   r.style.left=(node.offsetLeft+node.offsetWidth/2)+'px';
   r.style.top=(node.offsetTop+4)+'px';
@@ -617,7 +668,7 @@ function planetDone(i){const t=planetTasks(i);return t.length>0&&t.every(([,v])=
 
 mapBox.addEventListener('click',e=>{
   const n=e.target.closest('.node');if(!n)return;
-  if(n.dataset.earth)showEarth();else openPlanet(+n.dataset.i);
+  openPlanet(+n.dataset.i);
 });
 
 /* ── экраны ────────────────────────────── */
@@ -630,6 +681,7 @@ function openPlanet(i){
   document.getElementById('pSub').textContent=p.topic+' · максимум '+pMax(p)+'★';
   const ic=document.getElementById('pIcon');
   ic.style.setProperty('--c1',p.c[0]);ic.style.setProperty('--c2',p.c[1]);ic.style.setProperty('--c3',p.c[2]);
+  ic.innerHTML=skin(i);
   const box=document.getElementById('pTasks');
   let pane=box.querySelector('.pane[data-p="'+i+'"]');
   if(!pane){
